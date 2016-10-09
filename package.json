@@ -1,0 +1,14 @@
+{
+  "name": "MyCode2040",
+  "version": "1.0.0",
+  "description": "my code2040 challenge",
+  "scripts": {
+    "test": "echo Test your code by opening http://localhost:3000 in your browser.",
+    "jshint": "./node_modules/.bin/jshint --config .jshintrc --exclude=node_modules,test . || exit 0"
+  },
+  "author": "Tuan Anh Tran Caraballo <tranc2606@stanford.edu>",
+  "license": "ISC",
+  "dependencies": {
+    "xhr2": "*"
+  }
+}
