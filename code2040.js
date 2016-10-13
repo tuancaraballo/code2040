@@ -155,14 +155,15 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
   var getNoMatches = function (array, prefix){
   	 var arrayNoMatches = [];
 
-  	 len = array.length; // --> len from above;
+  	 var len = array.length; 
   	 var prefix_len = prefix.length;
-
-     for(var temp : array){ // --> iterate thorugh the array
+  	 var iterator;
+     for(iterator = 0; iterator < len; iterator++){
+     	var temp = array[iterator];
      	if(temp.length > prefix_len){  //--> if the word is no longer than the prefix, don't even bother checking it, add it.
      		var temp_prefix = temp.substring(0, prefix_len); // --> get me the prefix of the word
      		if(temp_prefix != prefix){
-     			arrayNoMatches.push()
+     			arrayNoMatches.push(temp);
      		}
      	}else{
      		arrayNoMatches.push(temp);
@@ -171,13 +172,30 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
      return arrayNoMatches;
   }
 
-	hayStackRequest.success(function(data,status,headers,config) {
+  /*
+ |     Purpose: To send the response: token + array containing no matches
+ |   Arguments: Nothing, it will bubble up until it finds the object to send
+ |      Return: Nothing, this is a void function pretty much  	
+*/
+	var sendPrefixResponse = function(){
+		var prefixResponseURL = "http://challenge.code2040.org/api/prefix/validate";
+		 var prefixResponseHTTP = $http.post(prefixResponseURL, tuanKeyObject);
+		 prefixResponseHTTP.success(function(data,status,headers,config){
+		 	if(status == 200){
+		 		console.log("Awesome!! it was sent successfully " + data);
+		 	}else{
+		 		console.log("Status code: " + status);
+		 	}
+		 });
+
+	}
+
+	prefixRequest.success(function(data,status,headers,config) {
 		if(status == 200){ // --> successful response from server.
-			console.log("Connected successfully to haystack");
+			console.log("Connected successfully to Array_Prefix");
 			console.log(data);
-			var index = findNeedle(data.haystack,data.needle);
-			tuanKeyObject.needle = index;
-			sendHaystackResponse();
+			tuanKeyObject.array = getNoMatches(data.array, data.prefix);
+			sendPrefixResponse ();
 		} else{
 			console.log("Failed to connect to the server");
 		}
