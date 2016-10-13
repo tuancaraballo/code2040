@@ -34,7 +34,6 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
 
 /*****************************  Step 2: Reversing a String ***********************************/
 	var reverseRequestURL = "http://challenge.code2040.org/api/reverse";
-	var reverseResponseURL = "http://challenge.code2040.org/api/reverse/validate"
 
 	var tuanKeyObject = {
 			token: "eb398e22731a7c7e608e365cfa73f3d4"
@@ -62,6 +61,7 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
 	}
 
 	var sendReverseResponse = function(){
+		 var reverseResponseURL = "http://challenge.code2040.org/api/reverse/validate"
 		 var reverseResponseHTTP = $http.post(reverseResponseURL, tuanKeyObject);
 		 reverseResponseHTTP.success(function(data,status,headers,config){
 		 	if(status == 200){
@@ -86,32 +86,102 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
 /*****************************  Step 3 Finding Needle ***********************************/
 	var hayStackURL = "http://challenge.code2040.org/api/haystack";
 
-	var hayStackRequest = $http.post(reverseResponseURL, tuanKeyObject);
 	delete tuanKeyObject["string"]; // --> removing this key that was added in the previous step, so that I can reuse
 									// my object
+	var hayStackRequest = $http.post(hayStackURL, tuanKeyObject);
+
+	
 /*
  |     Purpose: To find the needle within the haystack
  |   Arguments: An array of strings and the target string (needle).
  |      Return: It returns the index if found, otherwise returns -1;         	
 */
-   var index = findNeedle(haystack, needle){
-   	 var len = object.length; // --> we don't wanna call this function within the for loop, a bit more efficient  
+   var findNeedle = function (haystack, needle){
+   	 var len = haystack.length; // --> we don't wanna call this function within the for loop, a bit more efficient  
    	 var iterator;            
    	 for(iterator=0; iterator < len; iterator++){
    	 	if(haystack[iterator] == needle) return iterator;
    	 }
    	 return -1;
    }
+/*
+ |     Purpose: To send the response: token + needle to the server
+ |   Arguments: Nothing, it will bubble up until it finds the object to send
+ |      Return: Nothing, this is a void function pretty much  	
+*/
+	var sendHaystackResponse = function(){
+		var hayStackURL = "http://challenge.code2040.org/api/haystack/validate";
+		 var hayStackResponseHTTP = $http.post(hayStackURL, tuanKeyObject);
+		 hayStackResponseHTTP.success(function(data,status,headers,config){
+		 	if(status == 200){
+		 		console.log("Awesome!! it was sent successfully " + data);
+		 	}else{
+		 		console.log("Status code: " + status);
+		 	}
+		 });
+
+	}
+
 	hayStackRequest.success(function(data,status,headers,config) {
 		if(status == 200){ // --> successful response from server.
-
+			console.log("Connected successfully to haystack");
+			console.log(data);
 			var index = findNeedle(data.haystack,data.needle);
-
-
-
+			tuanKeyObject.needle = index;
+			sendHaystackResponse();
+		} else{
+			console.log("Failed to connect to the server");
 		}
-	})
+	});
 
+
+/*****************************  Step 4: Find Prefix  ***********************************/	
+
+	var prefixURL = "http://challenge.code2040.org/api/prefix";
+
+	delete tuanKeyObject["needle"]; // --> removing this key that was added in the previous step, so that I can reuse
+									// my object
+	var prefixRequest = $http.post(prefixURL, tuanKeyObject);
+
+/*
+ |     Purpose: To get an array containing the words that don't start with the prefix
+ |   Arguments: An array of words to search and the target prefix.
+ |      Return: An array of words that don't start with the prefix.
+ |   Side-Note:	The naiive approach is using a two nested loop and iterate thorugh the array and one through the 
+ |				the word, but this will lead a O(n^2) worst case, by splicing it, we just compare what we are
+ |				interested in. Calling the function splice adds some overhead cost, but it should be cheaper than 
+ |				using two nested loops.
+*/
+  var getNoMatches = function (array, prefix){
+  	 var arrayNoMatches = [];
+
+  	 len = array.length; // --> len from above;
+  	 var prefix_len = prefix.length;
+
+     for(var temp : array){ // --> iterate thorugh the array
+     	if(temp.length > prefix_len){  //--> if the word is no longer than the prefix, don't even bother checking it, add it.
+     		var temp_prefix = temp.substring(0, prefix_len); // --> get me the prefix of the word
+     		if(temp_prefix != prefix){
+     			arrayNoMatches.push()
+     		}
+     	}else{
+     		arrayNoMatches.push(temp);
+     	}
+     }
+     return arrayNoMatches;
+  }
+
+	hayStackRequest.success(function(data,status,headers,config) {
+		if(status == 200){ // --> successful response from server.
+			console.log("Connected successfully to haystack");
+			console.log(data);
+			var index = findNeedle(data.haystack,data.needle);
+			tuanKeyObject.needle = index;
+			sendHaystackResponse();
+		} else{
+			console.log("Failed to connect to the server");
+		}
+	});
 
 
 }]); 
