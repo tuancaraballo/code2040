@@ -1,15 +1,14 @@
-/*
-	Code2040 Coding Challenge
-	Author: Tuan Anh Tran Caraballo
-	email: tuan2606@stanford.edu
-*/
+/******************************************
+|	Code2040 Coding Challenge
+|	Author: Tuan Anh Tran Caraballo
+|	email: tuan2606@stanford.edu
+*******************************************/
 
 'use strict';
+/*****************************  Step 0: Setting up my Angular app ***********************************/
 
 var myCode2040App = angular.module('myApp', []);	
-
-myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($scope, $http) {
-
+myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($scope, $http) { //--> injecting http
 
 /*****************************  Step 1: Registration ***********************************/
 
@@ -200,7 +199,61 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
 			console.log("Failed to connect to the server");
 		}
 	});
+/*****************************  Step 5: Add seconds to ISO DateStamp ***********************************/	
 
+	var isoURL = "http://challenge.code2040.org/api/dating";
 
+	delete tuanKeyObject["array"]; // --> removing this key that was added in the previous step, so that I can reuse
+									// my object
+	var isoRequest = $http.post(isoURL, tuanKeyObject);
+
+ /*
+ |     Purpose: To send the response back to the server containing the new date object
+ |   Arguments: Nothing, it will bubble up until it finds the object to send
+ |      Return: Nothing, this is a void function pretty much  	
+*/
+	var sendDateResponse = function(){
+		var dateResponseURL = "http://challenge.code2040.org/api/dating/validate";
+		 var dateResponseHTTP = $http.post(dateResponseURL, tuanKeyObject);
+		 dateResponseHTTP.success(function(data,status,headers,config){
+		 	if(status == 200){
+		 		console.log("Awesome!! it was sent successfully " + data);
+		 	}else{
+		 		console.log("Status code: " + status);
+		 	}
+		 });
+
+	}
+
+  /** Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString */
+	function pad(number) {
+      	if (number < 10) {
+        	return '0' + number;
+      	}
+      	return number;
+    }
+  /**  Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString */
+    Date.prototype.toISOString = function() {
+      return this.getUTCFullYear() +
+        '-' + pad(this.getUTCMonth() + 1) +
+        '-' + pad(this.getUTCDate()) +
+        'T' + pad(this.getUTCHours()) +
+        ':' + pad(this.getUTCMinutes()) +
+        ':' + pad(this.getUTCSeconds()) +  'Z';       
+    };
+
+	isoRequest.success(function(data,status,headers,config) {
+		if(status == 200){ // --> successful response from server.
+			console.log("Connected successfully to Array_Prefix");
+			console.log("Their date: " + data.datestamp); // --> for debugging purposes
+			var date = new Date(data.datestamp); // --> convert this to a date object
+			date.setSeconds(date.getSeconds() + data.interval);  // --> add the interval		     
+		    tuanKeyObject.datestamp =  date.toISOString();	
+		    sendDateResponse();
+
+		} else{
+			console.log("Failed to connect to the server");
+		}
+	});
 }]); 
 
