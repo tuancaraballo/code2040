@@ -248,12 +248,12 @@ myCode2040App.controller("myCode2040Contoller", ['$scope', '$http', function($sc
 			console.log("Their date: " + data.datestamp); // --> for debugging purposes
 			var date = new Date(data.datestamp); // --> convert this to a date object
 			date.setSeconds(date.getSeconds() + data.interval);  // --> add the interval		     
-		    tuanKeyObject.datestamp =  date.toISOString();	
-		    sendDateResponse();
+		        tuanKeyObject.datestamp =  date.toISOString();	
+		        sendDateResponse();
 
-		} else{
+		 } else{
 			console.log("Failed to connect to the server");
-		}
+		 }
 	});
 }]); 
 
